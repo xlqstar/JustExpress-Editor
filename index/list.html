@@ -112,7 +112,7 @@
           $("#logList").append("\
               <tr>\
                 <td>" + logDate + "</td>\
-                <td><span name=\"title\" fileName=\"" + fileName + "\">" + logTitle + "</span><span name=\"edit\" class=\"glyphicon glyphicon-trash\" style=\"float:right;\"></span><span name=\"edit\" class=\"glyphicon glyphicon-pencil\" style=\"float:right;margin-right:10px;\"></span></td>\
+                <td><span name=\"title\" fileName=\"" + fileName + "\">" + logTitle + "</span><span title=" + logTitle + " name=\"delete\" class=\"glyphicon glyphicon-trash\" style=\"float:right;\"></span><span title=" + logTitle + " name=\"edit\" class=\"glyphicon glyphicon-pencil\" style=\"float:right;margin-right:10px;\"></span></td>\
               </tr>\
           ");
         };
@@ -148,6 +148,19 @@
         $("#blogCreateModal").modal('toggle');
       })
 
+    })
+
+    //编辑日志
+    $("span[name='edit']").click(function(){
+      var title = $(this).attr("title");
+      editBlog(title);
+    })
+
+    //删除日志
+    $("span[name='delete']").click(function(){
+      var title = $(this).attr("title");
+      console.log(title);
+      deleteBlog(title);
     })
 
     //更改标题-触发
@@ -195,17 +208,34 @@
     function deleteBlog(title){
       var fileName = title2FileName(title);
       var fullFileName = path.join(workSpace,fileName);
+      console.log(fullFileName);
+      if (fs.statSync(fullFileName).isFile()) {
+        process.exec("del /a/f/q \"" + fullFileName + "\"")
+      }else{
+        process.exec("rmdir /s/q \"" + fullFileName + "\"")
+      }
     }
 
     function editBlog(title){
       var fileName = title2FileName(title);
       var fullFileName = path.join(workSpace,fileName);
-      fs.readFile(fullFileName, function (err, data) {
-        if (err) throw err;
-        localStorage["file.article.title"] = title;
-        localStorage["file.article.content"] = data;
-        window.open(stackEditorPath);
-      });
+      if (fs.statSync(fullFileName).isFile()){
+        fs.readFile(fullFileName, function (err, data) {
+          if (err) throw err;
+          localStorage["file.article.title"] = title;
+          localStorage["file.article.content"] = data;
+          window.open(stackEditorPath);
+        });
+      }else if(fs.existsSync(path.join(fullFileName,"article.md"))){
+        fs.readFile(path.join(fullFileName,"article.md"), function (err, data) {
+          if (err) throw err;
+          localStorage["file.article.title"] = title;
+          localStorage["file.article.content"] = data;
+          window.open(stackEditorPath);
+        });
+      }else{//如果为相册 则直接打开目录
+        process.exec("start \"" + fullFileName + "\"")
+      }
     }
     </script>
   </body>
