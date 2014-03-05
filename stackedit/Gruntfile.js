@@ -44,8 +44,7 @@ module.exports = function(grunt) {
                     name: "main",
                     out: "public/res-min/main.js",
                     mainConfigFile: 'public/res/main.js',
-                    optimize: "none",
-                    //optimize: "uglify2",
+                    optimize: "uglify2",
                     inlineText: true,
                     uglify2: {
                         output: {
