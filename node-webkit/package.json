@@ -1,7 +1,7 @@
 {
 	"name": "nw-demo",
 	// "main": "../stackedit/public/index.html?debug",
-	"main": "../index/siteInfo.html",
+	"main": "../index/index.html",
 	"window": {
 		//"title": "node-webkit demo",
 		//"icon": "link.png",
