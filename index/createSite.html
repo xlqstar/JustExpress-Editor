@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap core CSS -->
+    <link href="style/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="style/jumbotron-narrow.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="header">
+        <ul class="nav nav-pills pull-right">
+          <li id="show_welcome" class="active"><a href="javascript:showBlock('welcome');">欢迎</a></li>
+          <li id="show_baseinfo"><a href="javascript:showBlock('baseinfo');">基础信息</a></li>
+          <li id="show_tagset"><a href="javascript:showBlock('tagset');">标签集</a></li>
+          <li id="show_category"><a href="javascript:showBlock('category');">分类</a></li>
+          <li id="show_friendLink"><a href="javascript:showBlock('friendLink');">友情链接</a></li>
+          <li id="show_social"><a href="javascript:showBlock('social');">社会化账号</a></li>
+        </ul>
+        <h3 class="text-muted">&nbsp;&nbsp;</h3>
+      </div>
+
+      <div class="jumbotron" id="welcome">
+        <h1>Just Express ！</h1>
+        <p class="lead">首先欢迎您加入到JustExpress队伍中，下面你将体验到的是前所未有的清爽顺滑的写作体验！在这之前让我们先填写一些基础、必要的信息吧！(也可以从已有Blog目录 <button type="button" class="btn btn-danger btn-sm" id="importButton">导入</button> )</p>
+      </div>
+
+      <div class="panel panel-default" id="baseinfo" style="display:none;">
+        <div class="panel-heading">基础信息</div>
+        <div class="panel-body">
+            <div class="form-group">
+              <label for="siteRoot">blog生成路径：</label>
+              <input type="email" class="form-control" id="siteRoot" placeholder="例如：C:\Users\MyDocument">
+            </div>
+            <div class="form-group">
+              <label for="site">Blog的名字：</label>
+              <input type="email" class="form-control" id="site" placeholder="例如：liqun.me">
+            </div>
+            <div class="form-group">
+              <label for="domain">Blog的域名：</label>
+              <input type="email" class="form-control" id="domain" placeholder="例如：liqun.me（不要加http://）">
+            </div>
+            <div class="form-group">
+              <label for="Email">您的Email：</label>
+              <input type="email" class="form-control" id="email" placeholder="例如：xlqstar@gmail.com">
+            </div>
+            <div class="form-group">
+              <label for="name">您的姓名或昵称：</label>
+              <input type="email" class="form-control" id="author" placeholder="例如：立Q">
+            </div>
+            <div class="form-group">
+              <label for="pageSize">Blog索引页每页显示的条目数：</label>
+              <input type="email" class="form-control" id="pageSize" placeholder="10">
+            </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default" id="tagset" style="display:none;">
+        <div class="panel-heading">标签集</div>
+        <div class="panel-body">
+            <div class="form-group">
+              <label for="tags">标签(用"|"分隔)：</label>
+              <input type="email" class="form-control" id="tags" placeholder="php|arduino">
+            </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default" id="category" style="display:none;">
+        <div class="panel-heading">
+          开放式分类&nbsp;&nbsp;
+          <button type="button" class="btn btn-success btn-xs">
+            <span class="glyphicon glyphicon-plus" id="addOpenCategry"> 增加条目</span>
+          </button>
+        </div>
+        <div class="panel-body form-inline">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Category Name：</th>
+              <th>Category Alias：</th>
+            </tr>
+          </thead>
+          <tbody id="openCategorys">
+            <tr>
+              <td>1</td>
+              <td>
+                <div class="form-group">
+                  <label class="sr-only">Category Name：</label>
+                  <input type="email" name="categoryName" class="form-control" placeholder="例：相册（用于前台显示）">
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <label class="sr-only">Category Alias：</label>
+                  <input type="email" name="categoryAlias" class="form-control" placeholder="例：album（用于生成目录）">
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="panel panel-default" id="friendLink" style="display:none;">
+        <div class="panel-heading">
+          友情链接&nbsp;&nbsp;
+          <button type="button" class="btn btn-success btn-xs">
+            <span class="glyphicon glyphicon-plus" id="addFriendLink"> 增加条目</span>
+          </button>
+        </div>
+        <div class="panel-body form-inline">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Site Name：</th>
+              <th>Site Link：</th>
+            </tr>
+          </thead>
+          <tbody id="friendLinks">
+            <tr>
+              <td>1</td>
+              <td>
+                <div class="form-group">
+                  <label class="sr-only">Site Name：</label>
+                  <input type="email" name="siteName" class="form-control" placeholder="例：立Q的博客">
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <label class="sr-only">Site Link：</label>
+                  <input type="email" name="siteLink" class="form-control" placeholder="例：http://liqun.me">
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      
+      <div class="panel panel-default" id="social" style="display:none;">
+        <div class="panel-heading">
+          社会化账号&nbsp;&nbsp;
+          <button type="button" class="btn btn-success btn-xs">
+            <span class="glyphicon glyphicon-plus" id="addSocial"> 增加条目</span>
+          </button>
+        </div>
+        <div class="panel-body form-inline">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Social Name：</th>
+              <th>Social Link：</th>
+            </tr>
+          </thead>
+          <tbody id="socialInputs">
+            <tr>
+              <td>1</td>
+              <td>
+                <div class="form-group">
+                  <label class="sr-only">Social Name：</label>
+                  <input type="email" name="socialName" class="form-control" placeholder="例：github">
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <label class="sr-only">Social Link：</label>
+                  <input type="email" name="socialLink" class="form-control" placeholder="例：https://github.com/xlqstar">
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <button type="button" id="nextStep" class="btn btn-success btn-block">下一步</button>
+      <button type="button" id="makeBlog" class="btn btn-primary btn-block">创建</button>
+
+
+    </div> <!-- /container -->
+    
+    <!-- Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">已存在的日志目录</h4>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" placeholder="路径">
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">导入</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./js/jquery-1.10.2.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/common.js"></script>
+    <script src="./js/createSite.js"></script>
+    <script>
+    //本页全局变量
+
+    //配置项
+    var elements = ['pageSize','tags','site','domain','author','email','socials','categorys','links'];
+
+    //配置区块
+    var blocks = ['welcome','baseinfo','tagset','category','friendLink','social'];
+
+    showBlock('welcome');
+
+    //创建blog
+    $("#makeBlog").click(function(){
+
+        var Config = [];
+
+        for (var i in elements) { 
+          var key = elements[i];
+          var configNode = {};  
+          configNode.key = key;
+          if (key == "socials") {
+            configNode.value = getSocialsValue();
+            if (!configNode.value) {
+              configNode.value == "";
+            };
+          }else if(key == "categorys"){
+            configNode.value = getCategorysValue();
+            if (!configNode.value) {
+              alert("分类不能为空！");
+              return;
+            };
+          }else if(key == "links"){
+            configNode.value = getLinksValue();
+            if (!configNode.value) {
+              configNode.value == "";
+            };
+          }else{
+            configNode.value = $("#"+key).val();
+            if (!configNode.value) {
+              alert(key+"不能为空！");
+              return ;
+            };
+          };
+          // console.log(configNode);
+          Config.push(configNode);
+        }
+
+        var sites_root_path = $('#siteRoot').val();
+        var siteName = $('#site').val();
+
+        sites_root_path = path.normalize(sites_root_path);
+        
+        var exec = require('child_process').exec;
+        exec("..\\..\\justExpress\\src\\github.com\\xlqstar\\Just\\main\\just.exe siteroot "+sites_root_path);  //修正siteroot
+        localStorage['siteRoot'] = sites_root_path;
+
+        var setting = makeSetting(Config);
+
+        fs.writeFile('./'+siteName,setting,function(err){
+          if(err) throw err;
+        });
+        initLocalStorage();
+        exec("..\\..\\justExpress\\src\\github.com\\xlqstar\\Just\\main\\just.exe newsite "+siteName);  //创建blog
+    });
+
+    //导入现有日志
+    $("#importButton").click(function(){
+      $('#importModal').modal('toggle');
+    })
+
+    $("#importModal .btn-primary").click(function(){
+      var url = $("#importModal .form-control").val();
+      var site = path.basename(url);
+      var siteRoot = path.dirname(url);
+      fs.exists(path.join(url,"complied","setting"),function(exists){
+        if (exists) {
+          localStorage['site'] = site;
+          localStorage['siteRoot'] = siteRoot;
+          var exec = require('child_process').exec;
+          exec("..\\..\\justExpress\\src\\github.com\\xlqstar\\JustExpress\\main\\je.exe siteroot " + path.join(siteRoot,site));  //修正siteroot
+          $('#importModal').modal('toggle');
+          initLocalStorage();
+          window.location.href = 'index.html';
+        }else{
+          alert("导入的日志文件夹数据有异常！");
+        };
+      }); 
+    })
+
+    $("#addFriendLink").click(function(){
+      var count = $( "input[name='siteName']" ).length + 1;
+      $("#friendLinks").append("\
+        <tr>\
+          <td>"+count+"</td>\
+          <td>\
+            <div class=\"form-group\">\
+              <label class=\"sr-only\">Site Name：</label>\
+              <input type=\"email\" name=\"siteName\" class=\"form-control\" placeholder=\"Name\">\
+            </div>\
+          </td>\
+          <td>\
+            <div class=\"form-group\">\
+              <label class=\"sr-only\">Site Link：</label>\
+              <input type=\"email\" name=\"siteLink\" class=\"form-control\" placeholder=\"Link\">\
+            </div>\
+          </td>\
+        </tr>\
+      ");
+    })
+
+    $("#addSocial").click(function(){
+      var count = $( "input[name='socialName']" ).length + 1;
+      $("#socialInputs").append("\
+        <tr>\
+          <td>"+count+"</td>\
+          <td>\
+            <div class=\"form-group\">\
+              <label class=\"sr-only\">Social Name：</label>\
+              <input type=\"email\" name=\"socialName\" class=\"form-control\" placeholder=\"Name\">\
+            </div>\
+          </td>\
+          <td>\
+            <div class=\"form-group\">\
+              <label class=\"sr-only\">Social Link：</label>\
+              <input type=\"email\" name=\"socialLink\" class=\"form-control\" placeholder=\"Link\">\
+            </div>\
+          </td>\
+        </tr>\
+      ");
+    })
+
+    $("#addOpenCategry").click(function(){
+      var count = $( "input[name='categoryName']" ).length + 1;
+      $("#openCategorys").append("\
+        <tr>\
+          <td>"+count+"</td>\
+          <td>\
+            <div class=\"form-group\">\
+              <label class=\"sr-only\">Category Name：</label>\
+              <input type=\"email\" name=\"categoryName\" class=\"form-control\" placeholder=\"Name\">\
+            </div>\
+          </td>\
+          <td>\
+            <div class=\"form-group\">\
+              <label class=\"sr-only\">Category Alias：</label>\
+              <input type=\"email\" name=\"categoryAlias\" class=\"form-control\" placeholder=\"Alias\">\
+            </div>\
+          </td>\
+        </tr>\
+      ");
+    })
+    </script>
+  </body>
+</html>

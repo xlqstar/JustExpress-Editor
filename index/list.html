@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap core CSS -->
+    <link href="style/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="style/jumbotron-narrow.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <ul class="nav nav-pills pull-right">
+          <li class="active"><a id="makeArticleButton" href="javascript:void(0);">创建文章</a></li>
+          <li><a id="makeAlbumButton" href="javascript:void(0);">创建相册</a></li>
+          <!-- <li><a href="siteInfo.html">配置站点信息</a></li> -->
+        </ul>
+        <h3 class="text-muted">Liqun.me</h3>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th width="150">日期：</th>
+            <th>标题：</th>
+          </tr>
+        </thead>
+        <tbody id="logList">
+<!--
+<tr>
+  <td>2012-8-2</td>
+  <td>
+    <span name="title">文章标题</span>
+    <span name="edit" class="glyphicon glyphicon-pencil" style="float:right;"></span>
+  </td>
+</tr>
+-->
+        </tbody>
+      </table>
+
+    </div> <!-- /container -->
+
+    <!-- title change Modal -->
+    <div class="modal fade" id="titleChangeModal" tabindex="-1" role="dialog" aria-labelledby="titleChangeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">修改标题</h4>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" placeholder="输入新标题">
+                  <input type="hidden" id="oldFileName">
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary">保存</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- blog create Modal -->
+    <div class="modal fade" id="blogCreateModal" tabindex="-1" role="dialog" aria-labelledby="blogCreateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">标题</h4>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" placeholder="输入标题">
+                  <input type="hidden" id="blogType">
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary">创建</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./js/jquery-1.10.2.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/common.js"></script>
+
+    <script>
+    //本页全局变量
+    var workSpace = path.join(localStorage['siteRoot'],localStorage['site']);
+
+    //文章列表
+    var fileList = fs.readdirSync(workSpace);
+    fileList.forEach(function(fileName){
+        if (fileName != "complied") {
+          logFileName = fileName.split("@");
+          logTitle = logFileName[0];
+          logDate = logFileName[1].split(".")[0];
+          $("#logList").append("\
+              <tr>\
+                <td>" + logDate + "</td>\
+                <td><span name=\"title\" fileName=\"" + fileName + "\">" + logTitle + "</span><span name=\"edit\" class=\"glyphicon glyphicon-trash\" style=\"float:right;\"></span><span name=\"edit\" class=\"glyphicon glyphicon-pencil\" style=\"float:right;margin-right:10px;\"></span></td>\
+              </tr>\
+          ");
+        };
+    });
+
+    //创建文章-触发
+    $("#makeArticleButton").click(function(){
+      $("#blogType").val("_article");
+      $("#blogCreateModal").modal('toggle');
+    })
+
+    //创建相册-触发
+    $("#makeAlbumButton").click(function(){
+      $("#blogType").val("album");
+      $("#blogCreateModal").modal('toggle');
+    })
+
+    //创建文章/相册-执行
+    $("#blogCreateModal .btn-primary").click(function(){
+      var blogType = $("#blogType").val();
+      var title = $("#blogCreateModal .form-control").val();
+      process.exec(justExpressPath + " -site " + localStorage['site'] + " post " + blogType + " " + title,function(error, stdout, stderr){
+        if (error) { throw error};
+        if (blogType == "_article") {
+          var fileName = title2FileName(title);
+          fs.readFile(path.join(localStorage["siteRoot"],localStorage["site"],fileName), function (err, data) {
+            if (err) throw err;
+            localStorage["file.article.title"] = title;
+            localStorage["file.article.content"] = data;
+            window.open(stackEditorPath);
+          });
+        }
+        $("#blogCreateModal").modal('toggle');
+      })
+
+    })
+
+    //更改标题-触发
+    $("span[name='title']").dblclick(function(){
+      var title = $(this).text();
+      var fileName = $(this).attr('fileName');
+      $('#oldFileName').val(fileName);
+      $("#modalInput").val(title).attr('placeholder',title);
+      $('#titleChangeModal').modal('toggle');
+    })
+
+    //更改标题-执行
+    $("#titleChangeModal .btn-primary").click(function(){
+      var oldFileName = $('#oldFileName').val();
+      var oldTitle = oldFileName.split("@")[0];
+      var newTitle = $('#titleChangeModal .form-control').val();
+
+      var oldFullFileName = path.join(workSpace, oldFileName);
+      var newFullFileName = path.join(workSpace, newTitle + "@" + oldFileName.split("@")[1]);
+      fs.renameSync( oldFullFileName, newFullFileName );
+      
+      $("span[name='title']").each(function(){
+        // console.log(oldTitle,newTitle);
+        if($(this).text() == oldTitle){
+          $(this).text(newTitle);
+          return false;
+        }
+      });
+
+      $('#titleChangeModal').modal('toggle');
+    })
+
+
+    function title2FileName(title){
+        var files = fs.readdirSync(workSpace);
+        for( key in files){
+            var file = files[key];
+            if (title == file.split('@')[0]) {
+                return file;
+            };
+        }
+        return false;
+    }
+
+    function deleteBlog(title){
+      var fileName = title2FileName(title);
+      var fullFileName = path.join(workSpace,fileName);
+    }
+
+    function editBlog(title){
+      var fileName = title2FileName(title);
+      var fullFileName = path.join(workSpace,fileName);
+      fs.readFile(fullFileName, function (err, data) {
+        if (err) throw err;
+        localStorage["file.article.title"] = title;
+        localStorage["file.article.content"] = data;
+        window.open(stackEditorPath);
+      });
+    }
+    </script>
+  </body>
+</html>
