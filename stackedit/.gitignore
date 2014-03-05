@@ -1,0 +1,5 @@
+.project
+.settings
+node_modules
+Thumbs.db
+public/res/bower-libs
