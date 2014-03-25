@@ -14,11 +14,24 @@
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
+          <li>
+          </li>
           <li class="active"><a id="makeArticleButton" href="javascript:void(0);">创建文章</a></li>
           <li><a id="makeAlbumButton" href="javascript:void(0);">创建相册</a></li>
           <!-- <li><a href="siteInfo.html">配置站点信息</a></li> -->
         </ul>
-        <h3 class="text-muted">Liqun.me</h3>
+        <h3 class="text-muted">Liqun.me
+          <!-- Split button -->
+          <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu" id="categoryMenuButton">
+              <li><a href="javascript:showLogList(logList,'index','logList');">全部</a></li>
+            </ul>
+          </div>
+          </h3>
       </div>
 
       <table class="table">
@@ -55,7 +68,7 @@
               <div class="form-group">
                 <div class="col-sm-10">
                   <input type="text" class="form-control" placeholder="输入新标题">
-                  <input type="hidden" id="oldFileName">
+                  <input type="hidden" id="title">
                 </div>
               </div>
           </div>
@@ -99,6 +112,9 @@
     <script src="./js/common.js"></script>
 
     <script>
+    var logList = [];
+    var categorys = [];
+
     //本页全局变量
     var workSpace = path.join(localStorage['siteRoot'],localStorage['site']);
 
@@ -106,17 +122,44 @@
     var fileList = fs.readdirSync(workSpace);
     fileList.forEach(function(fileName){
         if (fileName != "complied") {
-          logFileName = fileName.split("@");
-          logTitle = logFileName[0];
-          logDate = logFileName[1].split(".")[0];
-          $("#logList").append("\
-              <tr>\
-                <td>" + logDate + "</td>\
-                <td><span name=\"title\" fileName=\"" + fileName + "\">" + logTitle + "</span><span title=" + logTitle + " name=\"delete\" class=\"glyphicon glyphicon-trash\" style=\"float:right;\"></span><span title=" + logTitle + " name=\"edit\" class=\"glyphicon glyphicon-pencil\" style=\"float:right;margin-right:10px;\"></span></td>\
-              </tr>\
-          ");
+          logFileNameArry = fileName.split("@");
+          if (logFileNameArry.length <= 1) {
+            categorys.push(fileName);
+            var _fileList = fs.readdirSync(path.join(workSpace,fileName));
+            _fileList.forEach(function(fileName){
+              var logFileNameArry = fileName.split("@");
+              var length = categorys.length;
+              var currentCategory = categorys[length-1];
+              var src = path.join(workSpace,currentCategory,fileName);
+              var title = logFileNameArry[0];
+              var date = logFileNameArry[1].split(".")[0];
+              var log = {
+                "src":src,
+                "title":title,
+                "date":date,
+                "category":currentCategory
+              }
+              logList.push(log);
+            })
+          }else{
+            var src = path.join(workSpace,fileName);
+            var title = logFileNameArry[0];
+            var date = logFileNameArry[1].split(".")[0];
+            var log = {
+              "src":src,
+              "title":title,
+              "date":date,
+              "category":"index"
+            }
+            logList.push(log);
+          };
         };
     });
+
+    showLogList(logList,"index","logList");
+    categorys.forEach(function(category) {
+      $("#categoryMenuButton").append("<li><a href=\"javascript:showLogList(logList,'" + category + "','logList')\">" + category + "</a></li>")
+    })
 
     //创建文章-触发
     $("#makeArticleButton").click(function(){
@@ -151,39 +194,53 @@
     })
 
     //编辑日志
-    $("span[name='edit']").click(function(){
-      var title = $(this).attr("title");
+    $(".logItem .glyphicon-pencil").click(function(){
+      var title = $(this).parent().parent().attr("title");
+      console.log(title);
       editBlog(title);
     })
 
     //删除日志
-    $("span[name='delete']").click(function(){
-      var title = $(this).attr("title");
-      console.log(title);
+    $(".logItem .glyphicon-trash").click(function(){
+      var title = $(this).parent().parent().attr("title");
       deleteBlog(title);
     })
 
     //更改标题-触发
-    $("span[name='title']").dblclick(function(){
+    $(".logItem .title").dblclick(function(){
       var title = $(this).text();
-      var fileName = $(this).attr('fileName');
-      $('#oldFileName').val(fileName);
-      $("#modalInput").val(title).attr('placeholder',title);
+      $("#titleChangeModal .form-control").val(title).attr('placeholder',title);
+      $("#titleChangeModal #title").val(title);
       $('#titleChangeModal').modal('toggle');
     })
 
     //更改标题-执行
     $("#titleChangeModal .btn-primary").click(function(){
-      var oldFileName = $('#oldFileName').val();
-      var oldTitle = oldFileName.split("@")[0];
       var newTitle = $('#titleChangeModal .form-control').val();
+      var oldTitle = $("#titleChangeModal #title").val();
 
-      var oldFullFileName = path.join(workSpace, oldFileName);
-      var newFullFileName = path.join(workSpace, newTitle + "@" + oldFileName.split("@")[1]);
+      var logObj = getLogObj(oldTitle);
+      console.log(logObj);
+      var oldFullFileName = logObj.src;
+      var oldFileName = path.basename(oldFullFileName);
+      var newFileName = newTitle + "@" + oldFileName.split("@")[1];
+      console.log(workSpace, newFileName);
+      var newFullFileName = path.join(workSpace, newFileName);
+
+      var isArticleFolder = fs.existsSync(path.join(oldFullFileName,oldFileName + ".md"));
+      if (isArticleFolder) {
+        _oldFullFileName = path.join(oldFullFileName,oldFileName + ".md");
+        _newFullFileName = path.join(oldFullFileName,newFileName + ".md");
+        fs.renameSync( _oldFullFileName, _newFullFileName );
+        var isExistHtml = fs.existsSync(path.join(oldFullFileName,oldFileName + ".html"));
+        if (isExistHtml) {
+          fs.renameSync( path.join(oldFullFileName,oldFileName + ".html"), path.join(oldFullFileName,newFileName + ".html"));
+        };
+      };
+      
       fs.renameSync( oldFullFileName, newFullFileName );
       
-      $("span[name='title']").each(function(){
-        // console.log(oldTitle,newTitle);
+      $(".logItem .title").each(function(){
         if($(this).text() == oldTitle){
           $(this).text(newTitle);
           return false;
@@ -194,18 +251,16 @@
     })
 
 
-    function title2FileName(title){
-        var files = fs.readdirSync(workSpace);
-        for( key in files){
-            var file = files[key];
-            if (title == file.split('@')[0]) {
-                return file;
-            };
-        }
-        return false;
+    function getLogObj(title) {
+      for (var k in logList) {
+        if (logList[k].title == title) {
+          return logList[k];
+        };
+      };
+      return false
     }
 
-    function deleteBlog(title){
+    function deleteBlog(title) {
       var fileName = title2FileName(title);
       var fullFileName = path.join(workSpace,fileName);
       console.log(fullFileName);
@@ -216,9 +271,9 @@
       }
     }
 
-    function editBlog(title){
-      var fileName = title2FileName(title);
-      var fullFileName = path.join(workSpace,fileName);
+    function editBlog(title) {
+      var logObj = getLogObj(title);
+      var fullFileName = logObj.src;
       if (fs.statSync(fullFileName).isFile()){
         fs.readFile(fullFileName, function (err, data) {
           if (err) throw err;
@@ -226,8 +281,8 @@
           localStorage["file.article.content"] = data;
           window.open(stackEditorPath);
         });
-      }else if(fs.existsSync(path.join(fullFileName,"article.md"))){
-        fs.readFile(path.join(fullFileName,"article.md"), function (err, data) {
+      }else if(fs.existsSync(path.join(fullFileName,logObj.title+"@"+logObj.date+".md"))){
+        fs.readFile(path.join(fullFileName,logObj.title+"@"+logObj.date+".md"), function (err, data) {
           if (err) throw err;
           localStorage["file.article.title"] = title;
           localStorage["file.article.content"] = data;
@@ -236,6 +291,25 @@
       }else{//如果为相册 则直接打开目录
         process.exec("start \"" + fullFileName + "\"")
       }
+    }
+
+    function showLogList(logList,category,elementId) {
+      $("#"+elementId).html("");
+      logList.forEach(function(log){
+          if (log.category == category || category == "index") {
+            $("#"+elementId).append("\
+                <tr class=\"logItem\" title="+log.title+"  >\
+                  <td>" + log.date + "</td>\
+                  <td>\
+                    <span class=\"title\">" + log.title + "</span>\
+                    <span class=\"glyphicon glyphicon-trash\" style=\"float:right;\"></span>\
+                    <span class=\"glyphicon glyphicon-pencil\" style=\"float:right;margin-right:10px;\"></span>\
+                  </td>\
+                </tr>\
+            ");
+          };
+      })
+
     }
     </script>
   </body>

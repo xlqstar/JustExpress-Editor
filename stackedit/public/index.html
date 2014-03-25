@@ -14,22 +14,9 @@
         <meta name="msvalidate.01" content="5E47EE6F67B069C17E3CDD418351A612"
         />
         <script>
-            window.requireNodeTmp = window.require;
+            window.requireNode = window.require;
             window.require = undefined;
             
-            window.requireNode = function (argument) {
-                // if (argument == 'nw.gui') {
-                    window.requireTmp = window.require;
-                    window.require = window.requireNodeTmp;
-                    var object = window.require(argument);
-                    window.requireNodeTmp = window.require;
-                    window.require = window.requireTmp;
-                // }else{
-                    // var object = window.requireNodeTmp(argument);
-                // }
-                return object;
-            }
-
             // Use ?debug to serve original JavaScript files instead of minified
             window.baseDir = 'res';
             if (!/(\?|&)debug($|&)/.test(location.search)) {
@@ -41,8 +28,21 @@
             };
         </script>
         <script src="res-min/require.js"></script>
+
     </head>
     
-    <body></body>
+    <body>
+        <script>
+        window.require = function(argument1,argument2) {
+            var obj;
+            if (argument1 == 'nw.gui' || argument1 == 'util' || argument1 == 'events') {
+                obj = window.requireNode(argument1,argument2);
+            }else{
+                obj = window.requirejs(argument1,argument2);
+            }
+            return obj;
+        }
+        </script>
+    </body>
 
 </html>
