@@ -10,7 +10,7 @@ define([
     var oldTitle;
     var currentFileDesc;
     
-    var justExpress = new Extension("justExpress", 'justExpress\'s hooks"', true, true);
+    var justExpress = new Extension("justExpress", 'justExpress\'s hook"', true, true, true);
 
     var fs = requireNode('fs');
     var path = requireNode('path');
